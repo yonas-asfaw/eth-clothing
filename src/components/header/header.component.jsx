@@ -1,10 +1,10 @@
 import React from "react";
 import './header.style.scss';
 import { Route, Link } from "react-router-dom";
-
+import { auth } from "../../firbase/firebase.utils";
 import { ReactComponent as Logo } from '../../assets/crown.svg';
 
-const Header = () => {
+const Header = ({ currentuser }) => {
     return (
         <div className="header">
             <div>
@@ -19,8 +19,13 @@ const Header = () => {
                 <Link className='options' to="/">
                     CONTACT
                 </Link>
-                <Link className='options' to="/">
-                    CART
+                <Link className='options' >
+                    {
+                        currentuser ?
+                            <div className="option" onClick={() => auth.signOut()}> Sign Out</div>
+                            :
+                            <Link className="option" to="/sigin"> Sign In</Link>
+                    }
                 </Link>
             </div>
         </div>);
