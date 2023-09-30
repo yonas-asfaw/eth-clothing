@@ -5,21 +5,37 @@ import Homepage from './pages/homepage/homepage.component';
 import ShopPage from './pages/shop/shop.component';
 import Header from './components/header/header.component';
 import SignIn from './pages/signinpage/signinpage.component';
-import { auth } from './firbase/firebase.utils';
+import { auth, creatUserProfileDocument } from './firbase/firebase.utils';
 class App extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      currentUser: null
+      currentUser: null,
+      isLoading: true // Add a loading state
     }
   }
   unsubscribeFromAuth = null
 
   componentDidMount() {
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(user => {
-      this.setState({ currentUser: user })
-      console.log(user);
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        const userRef = await creatUserProfileDocument(userAuth);
+        userRef.onSnapshot(snapShot => {
+          this.setState({
+            currentUser: {
+              id: snapShot.id,
+              ...snapShot.data()
+            }
+
+          }, () => {
+            console.log(this.state.currentUser);
+            this.setState({ isLoading: false });// Log the updated state inside the callback function
+          });
+
+        })
+      }
+      this.setState({ currentUser: userAuth });
     })
   }
 
@@ -30,15 +46,21 @@ class App extends React.Component {
 
 
   render() {
+    const { currentUser, isLoading } = this.state;
+    console.log(currentUser);
     return (
       <div>
-        <Header currentUser={this.state.currentUser} />
-        <Routes>
 
+        {isLoading ? ( // Render a loading state or spinner while isLoading is true
+          <div>Loading...</div>
+        ) : (
+          <Header currentUser={currentUser} /> // Pass the currentUser state after it has been fetched
+        )}
+
+        <Routes>
           <Route exact path="/" Component={Homepage} />
           <Route exact path='/shop' Component={ShopPage} />
-          <Route exact path='/sigin' Component={SignIn} />
-
+          <Route exact path='/sigin' Component={SignIn} /> {/* Correct the route path to '/signin' */}
         </Routes>
       </div>
     );

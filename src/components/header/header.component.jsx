@@ -4,7 +4,8 @@ import { Route, Link } from "react-router-dom";
 import { auth } from "../../firbase/firebase.utils";
 import { ReactComponent as Logo } from '../../assets/crown.svg';
 
-const Header = ({ currentuser }) => {
+const Header = (currentuser) => {
+    console.log(currentuser);
     return (
         <div className="header">
             <div>
@@ -21,10 +22,10 @@ const Header = ({ currentuser }) => {
                 </Link>
                 <Link className='options' >
                     {
-                        currentuser ?
-                            <div className="option" onClick={() => auth.signOut()}> Sign Out</div>
+                        currentuser ? (
+                            <Link className="option" onClick={() => auth.signOut()}> Sign Out</Link>)
                             :
-                            <Link className="option" to="/sigin"> Sign In</Link>
+                            (<Link className="option" to="/sigin"> Sign In</Link>)
                     }
                 </Link>
             </div>
